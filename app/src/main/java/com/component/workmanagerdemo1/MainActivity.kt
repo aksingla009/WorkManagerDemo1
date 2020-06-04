@@ -6,6 +6,7 @@ import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.work.*
 import kotlinx.android.synthetic.main.activity_main.*
+import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
 
@@ -13,7 +14,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         startBtn.setOnClickListener {
-            setOneTimeRequest()
+            //setOneTimeRequest()
+            setPeriodicWorkRequest()
         }
     }
 
@@ -79,5 +81,12 @@ class MainActivity : AppCompatActivity() {
                 }
 
             })
+    }
+
+    private fun setPeriodicWorkRequest(){
+        //2nd parameter is repeat interval
+        val periodicRequest = PeriodicWorkRequest.Builder(DownloadingWorker::class.java,16,TimeUnit.MINUTES).build()
+        WorkManager.getInstance(applicationContext).enqueue(periodicRequest)
+
     }
 }
