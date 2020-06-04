@@ -46,12 +46,25 @@ class MainActivity : AppCompatActivity() {
         val oneTimeCompressingRequest : OneTimeWorkRequest = OneTimeWorkRequest.Builder(CompressingWorker::class.java).build()
 
         //Sequential Chaining of workers
-        workManagerInstance.beginWith(oneTimeFilteringRequest)
+        /*workManagerInstance.beginWith(oneTimeFilteringRequest)
+            .then(oneTimeCompressingRequest)
+            .then(oneTimeUploadRequest)
+            .enqueue()*/
+
+        //workManagerInstance.enqueue(oneTimeUploadRequest)
+
+        //We are assuming that Downloading and filtering wil be done in parallel for this demo
+        val oneTimeDownloadingRequest : OneTimeWorkRequest = OneTimeWorkRequest.Builder(DownloadingWorker::class.java).build()
+
+        val parallelWorks = mutableListOf<OneTimeWorkRequest>()
+        parallelWorks.add(oneTimeDownloadingRequest)
+        parallelWorks.add(oneTimeFilteringRequest)
+
+        //Parallel Chaining of workers
+        workManagerInstance.beginWith(parallelWorks)
             .then(oneTimeCompressingRequest)
             .then(oneTimeUploadRequest)
             .enqueue()
-
-        //workManagerInstance.enqueue(oneTimeUploadRequest)
 
 
         workManagerInstance.getWorkInfoByIdLiveData(oneTimeUploadRequest.id)

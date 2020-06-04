@@ -23,7 +23,7 @@ class UploadWorker(context : Context, params : WorkerParameters) : Worker(contex
             val countLimit : Int = data1.getInt(MainActivity.KEY_COUNT_VALUE,10)
 
             for(i in 0 until countLimit){
-                Log.i("UploadWorker", "Uploading : $i ")
+                Log.i("MYTAG", "Uploading : $i ")
             }
 
             val time = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
