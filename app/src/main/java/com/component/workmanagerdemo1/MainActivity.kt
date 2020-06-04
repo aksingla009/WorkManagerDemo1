@@ -41,7 +41,18 @@ class MainActivity : AppCompatActivity() {
             .build()
         //.setConstraints(constraint)
 
-        workManagerInstance.enqueue(oneTimeUploadRequest)
+        val oneTimeFilteringRequest : OneTimeWorkRequest = OneTimeWorkRequest.Builder(FilteringWorker::class.java).build()
+
+        val oneTimeCompressingRequest : OneTimeWorkRequest = OneTimeWorkRequest.Builder(CompressingWorker::class.java).build()
+
+        //Sequential Chaining of workers
+        workManagerInstance.beginWith(oneTimeFilteringRequest)
+            .then(oneTimeCompressingRequest)
+            .then(oneTimeUploadRequest)
+            .enqueue()
+
+        //workManagerInstance.enqueue(oneTimeUploadRequest)
+
 
         workManagerInstance.getWorkInfoByIdLiveData(oneTimeUploadRequest.id)
             .observe(this, Observer {
