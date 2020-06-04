@@ -2,6 +2,9 @@ package com.component.workmanagerdemo1
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.lifecycle.Observer
+import androidx.work.Constraints
+import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import kotlinx.android.synthetic.main.activity_main.*
@@ -16,10 +19,24 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setOneTimeRequest(){
-        val oneTimeUploadRequest  =  OneTimeWorkRequest.Builder(UploadWorker::class.java).build()
+    private fun setOneTimeRequest() {
+        val workManagerInstance = WorkManager.getInstance(applicationContext)
+        val constraint: Constraints = Constraints.Builder()
+            .setRequiresCharging(true)
+            .setRequiresStorageNotLow(true)
+            .setRequiresDeviceIdle(true)
+            .setRequiresBatteryNotLow(true)
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
 
-        WorkManager.getInstance(applicationContext).enqueue(oneTimeUploadRequest)
+        val oneTimeUploadRequest = OneTimeWorkRequest.Builder(UploadWorker::class.java).setConstraints(constraint).build()
 
+        workManagerInstance.enqueue(oneTimeUploadRequest)
+
+        workManagerInstance.getWorkInfoByIdLiveData(oneTimeUploadRequest.id)
+            .observe(this, Observer {
+                textView.text = it.state.name
+
+            })
     }
 }
